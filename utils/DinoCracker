@@ -1,0 +1,29 @@
+#!/bin/bash
+
+if [[ -z $1 || -z $2 ]]; then
+	echo "Usage: $0 <dict> <sha1sum>"
+	exit 1
+fi
+
+dict=$1
+reverse=$2
+
+if [[ ! -f $dict || ! -r $dict ]]; then
+    echo "Error: $dict: No such file or directory" 1>&2
+    exit 1
+fi
+
+spaces=""
+while read passwd; do
+	sha1sum=$(echo $passwd | sha1sum | awk '{print $1}')
+	echo -ne "$spaces"
+	echo -ne "$passwd\r"
+	spaces=$(printf '%*s\r' "${#passwd}" '')
+	if [ "$sha1sum" = "$reverse" ]; then
+		echo "DinoCracked ! Result: $passwd"
+		exit 0
+	fi
+done < $dict
+
+echo "DiNotCracked :("
+exit 0

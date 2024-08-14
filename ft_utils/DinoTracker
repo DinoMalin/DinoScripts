@@ -1,0 +1,87 @@
+#!/bin/bash
+
+if [ $1 = "--date" ]; then
+	echo "Date is in format YYYY-MM-DD"
+	exit
+fi
+
+if [[ -z $1  || -z $2 ]]; then
+	echo "Usage: $0 <project> <date>" 2>&1
+	exit 1
+fi
+
+if [ -z "$CLIENT_ID" ]; then
+	echo "error: CLIENT_ID undefined"
+	exit 1
+fi
+if [ -z "$CLIENT_SECRET" ]; then
+	echo "error: CLIENT_SECRET undefined"
+	exit 1
+fi
+
+if [ $1 = "rush-00" ]; then
+	ID="1308"
+elif [ $1 == "rush-01" ]; then
+	ID="1310"
+elif [ $1 == "rush-02" ]; then
+	ID="1309"
+elif [ $1 == "bsq" ]; then
+	ID="1305"
+elif [ $1 == "exam-00" ]; then
+	ID="1301"
+elif [ $1 == "exam-01" ]; then
+	ID="1302"
+elif [ $1 == "exam-02" ]; then
+	ID="1303"
+elif [ $1 == "exam-03" ]; then
+	ID="1304"
+fi
+
+DATE_1="$2T01:00:00.205Z"
+DATE_2="$2T23:00:00.205Z"
+
+ACCESS_TOKEN=$(curl -s -X POST --data "grant_type=client_credentials&client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET" https://api.intra.42.fr/oauth/token | jq -r '.access_token')
+
+DATA_1=$(curl -s -G -H "Authorization: Bearer $ACCESS_TOKEN" \
+	--data-urlencode "page[size]=100" \
+	--data-urlencode "filter[campus]=62" \
+	--data-urlencode "range[marked_at]=$DATE_1,$DATE_2" \
+	"https://api.intra.42.fr/v2/projects/$ID/projects_users")
+
+DATA_2=$(curl -s -G -H "Authorization: Bearer $ACCESS_TOKEN" \
+	--data-urlencode "page[size]=100" \
+	--data-urlencode "page[number]=2" \
+	--data-urlencode "filter[campus]=62" \
+	--data-urlencode "range[marked_at]=$DATE_1,$DATE_2" \
+	"https://api.intra.42.fr/v2/projects/$ID/projects_users")
+
+DATA=$(echo "$DATA_1 $DATA_2" | jq -s '.[0] + .[1]' | jq 'sort_by([-.final_mark, .marked_at])')
+
+if [ "$DATA" = "[]" ]; then
+	echo "Project not found."
+	exit
+fi
+
+PROCESS=$(echo "$DATA" | jq -r '.[] | "&\(.user.login)&\(.final_mark)"' | cat -n)
+
+echo ===== 🦖 DINO TRACKER 🦕 =====
+echo
+while IFS='&' read -r index login level; do
+	index=$(echo "$index" | awk '{$1=$1;print}')
+	if [ "$index" = "1" ]; then
+		index="👑"
+	elif [ "$index" = "2" ]; then
+		index="🥈"
+	elif [ "$index" = "3" ]; then
+		index="🥉"
+	fi
+
+	url_login=$(printf "\e]8;;https://profile.intra.42.fr/users/$login\e\\%-8s\e]8;;\e\\" "$login")
+	printf "\t%-4s\t%s\t%d\n"	"$index" \
+					"$url_login" \
+					"$level"
+	if [ "$index" = "🥉" ]; then
+		echo
+	fi
+	sleep 0.01
+done <<< "$PROCESS"
