@@ -1,0 +1,30 @@
+#!/bin/bash
+
+if [ -z $1 ]; then
+        echo "Usage: ./WhenWasI <login>"
+        exit
+fi
+
+ACCESS_TOKEN=$(curl -s -X POST --data "grant_type=client_credentials&client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET" https://api.intra.42.fr/oauth/token | jq -r '.access_token')
+
+DATA=$(curl -s -G -H "Authorization: Bearer $ACCESS_TOKEN" \
+	--data-urlencode "filter[active]=true" \
+	"https://api.intra.42.fr/v2/users/$1")
+
+if [[ $DATA == "{}" ]]; then
+	echo "This user does not exist."
+	exit
+fi
+
+DATE=$(echo $DATA | jq -r '.updated_at')
+LOCATION=$(echo $DATA | jq -r '.location')
+
+if [ $LOCATION != "null" ]; then
+	echo "$1 is currently logged to $LOCATION."
+	exit
+fi
+
+UTC2_DATE=$(date -d "$DATE" '+%Y-%m-%d %H:%M:%S %Z' --utc)
+export TZ=UTC-2
+PRETTY_DATE=$(date -d "$UTC2_DATE" '+%A %d %B %Y, %H:%M:%S %Z')
+echo $PRETTY_DATE
