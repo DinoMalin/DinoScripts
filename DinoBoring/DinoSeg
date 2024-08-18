@@ -3,4 +3,4 @@
 while true
 do
 	pkill -SIGSEGV a.out
-done
+done &!
