@@ -1,12 +1,7 @@
 #!/bin/bash
 
-if [ $1 = "--date" ]; then
-	echo "Date is in format YYYY-MM-DD"
-	exit
-fi
-
-if [[ -z $1  || -z $2 ]]; then
-	echo "Usage: $0 <project> <date>" 2>&1
+if [[ -z $1  || -z $2 || -z $3 ]]; then
+	echo "Usage: $0 <project> <year> <month>" 2>&1
 	exit 1
 fi
 
@@ -37,8 +32,55 @@ elif [ $1 == "exam-03" ]; then
 	ID="1304"
 fi
 
-DATE_1="$2T01:00:00.205Z"
-DATE_2="$2T23:00:00.205Z"
+MONTH=
+LAST_DAY=
+if [ $3 = "january" ]; then
+	MONTH="01"
+	LAST_DAY="31"
+elif [ $3 = "february" ]; then
+	MONTH="02"
+	if (( ( $1 % 4 == 0 && $1 % 100 != 0 ) || $1 % 400 == 0 )); then
+		LAST_DAY="29"
+	else
+		LAST_DAY="28"
+	fi
+elif [ $3 = "march" ]; then
+	MONTH="03"
+	LAST_DAY="31"
+elif [ $3 = "april" ]; then
+	MONTH="04"
+	LAST_DAY="30"
+elif [ $3 = "may" ]; then
+	MONTH="05"
+	LAST_DAY="31"
+elif [ $3 = "june" ]; then
+	MONTH="06"
+	LAST_DAY="30"
+elif [ $3 = "july" ]; then
+	MONTH="07"
+	LAST_DAY="31"
+elif [ $3 = "august" ]; then
+	MONTH="08"
+	LAST_DAY="31"
+elif [ $3 = "september" ]; then
+	MONTH="09"
+	LAST_DAY="30"
+elif [ $3 = "october" ]; then
+	MONTH="10"
+	LAST_DAY="31"
+elif [ $3 = "november" ]; then
+	MONTH="11"
+	LAST_DAY="30"
+elif [ $3 = "december" ]; then
+	MONTH="12"
+	LAST_DAY="31"
+else
+	echo "Month is not valid !" 2>&1
+	exit 1
+fi
+
+DATE_1="$2-$MONTH-01T01:00:00.205Z"
+DATE_2="$2-$MONTH-""$LAST_DAY""T23:00:00.205Z"
 
 ACCESS_TOKEN=$(curl -s -X POST --data "grant_type=client_credentials&client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET" https://api.intra.42.fr/oauth/token | jq -r '.access_token')
 
