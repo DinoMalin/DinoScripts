@@ -30,6 +30,38 @@ elif [ $1 == "exam-02" ]; then
 	ID="1303"
 elif [ $1 == "exam-03" ]; then
 	ID="1304"
+elif [ $1 == "shell-00" ]; then
+	ID="1255"
+elif [ $1 == "shell-01" ]; then
+	ID="1256"
+elif [ $1 == "c-00" ]; then
+	ID="1257"
+elif [ $1 == "c-01" ]; then
+	ID="1258"
+elif [ $1 == "c-02" ]; then
+	ID="1259"
+elif [ $1 == "c-03" ]; then
+	ID="1260"
+elif [ $1 == "c-04" ]; then
+	ID="1261"
+elif [ $1 == "c-05" ]; then
+	ID="1262"
+elif [ $1 == "c-06" ]; then
+	ID="1263"
+elif [ $1 == "c-07" ]; then
+	ID="1270"
+elif [ $1 == "c-08" ]; then
+	ID="1264"
+elif [ $1 == "c-09" ]; then
+	ID="1265"
+elif [ $1 == "c-10" ]; then
+	ID="1266"
+elif [ $1 == "c-11" ]; then
+	ID="1267"
+elif [ $1 == "c-12" ]; then
+	ID="1268"
+elif [ $1 == "c-13" ]; then
+	ID="1271"
 fi
 
 MONTH=
