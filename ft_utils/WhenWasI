@@ -5,6 +5,15 @@ if [ -z $1 ]; then
         exit
 fi
 
+if [ -z "$CLIENT_ID" ]; then
+	echo "error: CLIENT_ID undefined"
+	exit 1
+fi
+if [ -z "$CLIENT_SECRET" ]; then
+	echo "error: CLIENT_SECRET undefined"
+	exit 1
+fi
+
 ACCESS_TOKEN=$(curl -s -X POST --data "grant_type=client_credentials&client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET" https://api.intra.42.fr/oauth/token | jq -r '.access_token')
 
 DATA=$(curl -s -G -H "Authorization: Bearer $ACCESS_TOKEN" \
