@@ -143,8 +143,7 @@ fi
 PROCESS=$(echo "$DATA" | jq -r '.[] | "&\(.user.login)&\(.final_mark)&\(.status)"' | cat -n)
 GREEN='\033[0;32m'
 RES='\033[0m'
-echo ===== 🦖 DINO TRACKER 🦕 =====
-echo
+echo -e "\t=== 🦖 DINO TRACKER 🦕 ===\n"
 while IFS='&' read -r index login level status; do
 	index=$(echo "$index" | awk '{$1=$1;print}')
 	if [ "$index" = "1" ]; then
