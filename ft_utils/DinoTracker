@@ -14,6 +14,8 @@ if [ -z "$CLIENT_SECRET" ]; then
 	exit 1
 fi
 
+
+EXAM=false
 if [ $1 = "rush-00" ]; then
 	ID="1308"
 elif [ $1 == "rush-01" ]; then
@@ -24,12 +26,16 @@ elif [ $1 == "bsq" ]; then
 	ID="1305"
 elif [ $1 == "exam-00" ]; then
 	ID="1301"
+	EXAM=true
 elif [ $1 == "exam-01" ]; then
 	ID="1302"
+	EXAM=true
 elif [ $1 == "exam-02" ]; then
 	ID="1303"
+	EXAM=true
 elif [ $1 == "exam-03" ]; then
 	ID="1304"
+	EXAM=true
 elif [ $1 == "shell-00" ]; then
 	ID="1255"
 elif [ $1 == "shell-01" ]; then
@@ -113,7 +119,6 @@ fi
 
 DATE_1="$2-$MONTH-01T01:00:00.205Z"
 DATE_2="$2-$MONTH-""$LAST_DAY""T23:00:00.205Z"
-
 ACCESS_TOKEN=$(curl -s -X POST --data "grant_type=client_credentials&client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET" https://api.intra.42.fr/oauth/token | jq -r '.access_token')
 
 DATA_1=$(curl -s -G -H "Authorization: Bearer $ACCESS_TOKEN" \
@@ -130,17 +135,17 @@ DATA_2=$(curl -s -G -H "Authorization: Bearer $ACCESS_TOKEN" \
 	"https://api.intra.42.fr/v2/projects/$ID/projects_users")
 
 DATA=$(echo "$DATA_1 $DATA_2" | jq -s '.[0] + .[1]' | jq 'sort_by([-.final_mark, .marked_at])')
-
 if [ "$DATA" = "[]" ]; then
 	echo "Project not found."
 	exit
 fi
 
-PROCESS=$(echo "$DATA" | jq -r '.[] | "&\(.user.login)&\(.final_mark)"' | cat -n)
-
+PROCESS=$(echo "$DATA" | jq -r '.[] | "&\(.user.login)&\(.final_mark)&\(.status)"' | cat -n)
+GREEN='\033[0;32m'
+RES='\033[0m'
 echo ===== 🦖 DINO TRACKER 🦕 =====
 echo
-while IFS='&' read -r index login level; do
+while IFS='&' read -r index login level status; do
 	index=$(echo "$index" | awk '{$1=$1;print}')
 	if [ "$index" = "1" ]; then
 		index="👑"
@@ -150,10 +155,15 @@ while IFS='&' read -r index login level; do
 		index="🥉"
 	fi
 
+	if [[ $status = "finished" && $EXAM = true ]]; then
+		echo -en $GREEN
+	fi
+
 	url_login=$(printf "\e]8;;https://profile.intra.42.fr/users/$login\e\\%-8s\e]8;;\e\\" "$login")
 	printf "\t%-4s\t%s\t%d\n"	"$index" \
 					"$url_login" \
 					"$level"
+	echo -en $RES
 	if [ "$index" = "🥉" ]; then
 		echo
 	fi
