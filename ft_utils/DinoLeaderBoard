@@ -23,14 +23,16 @@ ACCESS_TOKEN=$(curl -s -X POST --data "grant_type=client_credentials&client_id=$
 DATA_1=$(curl -s -G -H "Authorization: Bearer $ACCESS_TOKEN" \
 	--data-urlencode "page[size]=100" \
 	--data-urlencode "filter[campus_id]=62" \
-	--data-urlencode "range[created_at]=2024-08-01T06:00:00.000Z, 2024-08-05T11:00:00.000Z" \
+	--data-urlencode "filter[active]=true" \
+	--data-urlencode "range[created_at]=2024-09-05T06:00:00.000Z, 2024-09-10T11:00:00.000Z" \
 	"https://api.intra.42.fr/v2/cursus_users")
 
 DATA_2=$(curl -s -G -H "Authorization: Bearer $ACCESS_TOKEN" \
-        --data-urlencode "page[size]=100" \
-        --data-urlencode "filter[campus_id]=62" \
-        --data-urlencode "page[number]=2" \
-        --data-urlencode "range[created_at]=2024-08-01T06:00:00.000Z, 2024-08-05T11:00:00.000Z" \
+    --data-urlencode "page[size]=100" \
+    --data-urlencode "filter[campus_id]=62" \
+	--data-urlencode "filter[active]=true" \
+    --data-urlencode "page[number]=2" \
+    --data-urlencode "range[created_at]=2024-09-05T06:00:00.000Z, 2024-09-10T11:00:00.000Z" \
         "https://api.intra.42.fr/v2/cursus_users")
 
 DATA=$(echo "$DATA_1 $DATA_2" | jq -s '.[0] + .[1]' | jq 'sort_by(.level) | reverse')

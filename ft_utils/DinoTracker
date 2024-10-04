@@ -74,9 +74,11 @@ MONTH=
 LAST_DAY=
 if [ $3 = "january" ]; then
 	MONTH="01"
+	LAST_MONTH="01"
 	LAST_DAY="31"
 elif [ $3 = "february" ]; then
 	MONTH="02"
+	LAST_MONTH="02"
 	if (( ( $1 % 4 == 0 && $1 % 100 != 0 ) || $1 % 400 == 0 )); then
 		LAST_DAY="29"
 	else
@@ -84,33 +86,48 @@ elif [ $3 = "february" ]; then
 	fi
 elif [ $3 = "march" ]; then
 	MONTH="03"
+	LAST_MONTH="03"
 	LAST_DAY="31"
 elif [ $3 = "april" ]; then
 	MONTH="04"
+	LAST_MONTH="04"
 	LAST_DAY="30"
 elif [ $3 = "may" ]; then
 	MONTH="05"
+	LAST_MONTH="05"
 	LAST_DAY="31"
 elif [ $3 = "june" ]; then
 	MONTH="06"
+	LAST_MONTH="06"
 	LAST_DAY="30"
 elif [ $3 = "july" ]; then
 	MONTH="07"
+	LAST_MONTH="07"
 	LAST_DAY="31"
 elif [ $3 = "august" ]; then
 	MONTH="08"
+	LAST_MONTH="08"
 	LAST_DAY="31"
 elif [ $3 = "september" ]; then
 	MONTH="09"
-	LAST_DAY="30"
+	if [ $2 = "2024" ]; then
+		LAST_MONTH="10"
+		LAST_DAY="04"
+	else
+		LAST_MONTH="09"
+		LAST_DAY="30"
+	fi
 elif [ $3 = "october" ]; then
 	MONTH="10"
+	LAST_MONTH="10"
 	LAST_DAY="31"
 elif [ $3 = "november" ]; then
 	MONTH="11"
+	LAST_MONTH="11"
 	LAST_DAY="30"
 elif [ $3 = "december" ]; then
 	MONTH="12"
+	LAST_MONTH="12"
 	LAST_DAY="31"
 else
 	echo "Month is not valid !" 2>&1
@@ -118,7 +135,7 @@ else
 fi
 
 DATE_1="$2-$MONTH-01T01:00:00.205Z"
-DATE_2="$2-$MONTH-""$LAST_DAY""T23:00:00.205Z"
+DATE_2="$2-$LAST_MONTH-""$LAST_DAY""T23:00:00.205Z"
 ACCESS_TOKEN=$(curl -s -X POST --data "grant_type=client_credentials&client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET" https://api.intra.42.fr/oauth/token | jq -r '.access_token')
 
 DATA_1=$(curl -s -G -H "Authorization: Bearer $ACCESS_TOKEN" \
