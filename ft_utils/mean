@@ -1,0 +1,14 @@
+#!/bin/bash
+
+MONTH=$1
+
+LEAD=$(./DinoTracker exam-03 2024 $MONTH | cut -f 4- | grep '^.' | grep -v '\[')
+
+SUM=$(echo $LEAD | tr ' ' '+')
+LEN=$(echo $LEAD | tr ' ' '\n' | wc -l)
+
+if [ -n "$LEAD" ]; then
+	printf "%.2f" $(echo \($SUM\) \/ $LEN | bc -l)
+else
+	echo "No data"
+fi
